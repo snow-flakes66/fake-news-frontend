@@ -34,84 +34,94 @@ function App() {
 
   const isFake = result && result.ml_prediction === "Fake";
   const verdictClass = isFake ? "fake" : "real";
-  const confidenceWidth = result ? result.ml_confidence + "%" : "0%";
-  const urlWidth = result && result.url_analysis ? result.url_analysis.score + "%" : "0%";
 
   return (
     <div className="page">
-      <div className="glow glow-1"></div>
-      <div className="glow glow-2"></div>
+      <div className="newsprint-bg"></div>
 
-      <div className="container">
-        <div className="header">
-          <div className="badge">AI plus Security Analysis</div>
-          <h1>Fake News Detector</h1>
-          <p className="subtitle">
-            Paste an article's text and, optionally, its source URL to get an instant credibility check.
-          </p>
+      <header className="masthead">
+        <div className="masthead-inner">
+          <span className="issue-label">📰 Est. 2026 &mdash; Vol. 1</span>
+          <h1 className="wordmark">The Verifier</h1>
+          <span className="issue-label">🔍 A Credibility Review</span>
         </div>
+        <div className="rule"></div>
+      </header>
 
-        <div className="card">
+      <main className="container">
+        <section className="intro">
+          <h2 className="headline">Is it news, or is it noise?</h2>
+          <p className="dek">
+            Submit an article and its source. Our analysis engine examines language patterns
+            and domain credibility to render a verdict.
+          </p>
+        </section>
+
+        <section className="submission">
+          <label className="field-label">✏️ Article Text</label>
           <textarea
             placeholder="Paste the full article text here..."
             value={text}
             onChange={function (e) { setText(e.target.value); }}
-            rows={7}
+            rows={8}
           />
 
+          <label className="field-label">🔗 Source URL (optional)</label>
           <div className="input-row">
             <input
               type="text"
-              placeholder="Source URL (optional)"
+              placeholder="https://..."
               value={url}
               onChange={function (e) { setUrl(e.target.value); }}
             />
             <button onClick={handleAnalyze} disabled={loading}>
-              {loading ? <span className="spinner"></span> : "Analyze"}
+              {loading ? "Reviewing..." : "Submit for Review"}
             </button>
           </div>
 
           {error ? <p className="error">{error}</p> : null}
-        </div>
+        </section>
 
         {result ? (
-          <div className="card result-card fade-in">
-            <div className="verdict-row">
-              <div className={"verdict-badge " + verdictClass}>
-                {isFake ? "Likely Fake" : "Likely Real"}
-              </div>
-              <div className="confidence">{result.ml_confidence}% confidence</div>
-            </div>
-
-            <div className="meter">
-              <div className={"meter-fill " + verdictClass} style={{ width: confidenceWidth }}></div>
+          <section className="verdict-section fade-in">
+            <div className="rule thin"></div>
+            <div className="verdict-header">
+              <span className="field-label">
+                {isFake ? "🚩 The Verdict" : "✅ The Verdict"}
+              </span>
+              <h3 className={"verdict-headline " + verdictClass}>
+                {isFake ? "Fabricated" : "Credible"}
+              </h3>
+              <p className="verdict-sub">
+                Our model is {result.ml_confidence}% confident in this assessment.
+              </p>
             </div>
 
             {result.url_analysis ? (
-              <div className="url-section">
-                <div className="url-header">
-                  <span>Source Trust Score</span>
-                  <span className="url-score">{result.url_analysis.score}/100</span>
-                </div>
-                <div className="meter">
-                  <div className="meter-fill url" style={{ width: urlWidth }}></div>
+              <div className="dossier">
+                <div className="dossier-header">
+                  <span className="field-label">🗂️ Source Dossier</span>
+                  <span className="dossier-score">{result.url_analysis.score} / 100</span>
                 </div>
                 {result.url_analysis.flags.length > 0 ? (
                   <ul className="flags">
                     {result.url_analysis.flags.map(function (flag, i) {
-                      return <li key={i}>{flag}</li>;
+                      return <li key={i}>⚠️ {flag}</li>;
                     })}
                   </ul>
                 ) : (
-                  <p className="clean">No red flags detected on this source.</p>
+                  <p className="clean">✓ No irregularities found in the source domain.</p>
                 )}
               </div>
             ) : null}
-          </div>
+          </section>
         ) : null}
+      </main>
 
-        <p className="footer">Built with a TF-IDF plus Logistic Regression model and URL heuristics</p>
-      </div>
+      <footer className="colophon">
+        <div className="rule thin"></div>
+        <p>📡 Analysis by TF-IDF + Logistic Regression, cross-referenced with domain heuristics.</p>
+      </footer>
     </div>
   );
 }
