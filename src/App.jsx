@@ -21,18 +21,21 @@ function App() {
       const res = await fetch("https://fake-news-detector-4bqv.onrender.com/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, url }),
+        body: JSON.stringify({ text: text, url: url }),
       });
       const data = await res.json();
       setResult(data);
     } catch (err) {
-      setError("Could not reach the backend. It may be waking up — try again in a few seconds.");
+      setError("Could not reach the backend. It may be waking up, try again in a few seconds.");
     } finally {
       setLoading(false);
     }
   };
 
-  const isFake = result?.ml_prediction === "Fake";
+  const isFake = result && result.ml_prediction === "Fake";
+  const verdictClass = isFake ? "fake" : "real";
+  const confidenceWidth = result ? result.ml_confidence + "%" : "0%";
+  const urlWidth = result && result.url_analysis ? result.url_analysis.score + "%" : "0%";
 
   return (
     <div className="page">
@@ -41,7 +44,7 @@ function App() {
 
       <div className="container">
         <div className="header">
-          <div className="badge">AI + Security Analysis</div>
+          <div className="badge">AI plus Security Analysis</div>
           <h1>Fake News Detector</h1>
           <p className="subtitle">
             Paste an article's text and, optionally, its source URL to get an instant credibility check.
@@ -52,7 +55,7 @@ function App() {
           <textarea
             placeholder="Paste the full article text here..."
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onChange={function (e) { setText(e.target.value); }}
             rows={7}
           />
 
@@ -61,63 +64,53 @@ function App() {
               type="text"
               placeholder="Source URL (optional)"
               value={url}
-              onChange={(e) => setUrl(e.target.value)}
+              onChange={function (e) { setUrl(e.target.value); }}
             />
             <button onClick={handleAnalyze} disabled={loading}>
-              {loading ? (
-                <span className="spinner"></span>
-              ) : (
-                "Analyze"
-              )}
+              {loading ? <span className="spinner"></span> : "Analyze"}
             </button>
           </div>
 
-          {error && <p className="error">{error}</p>}
+          {error ? <p className="error">{error}</p> : null}
         </div>
 
-        {result && (
+        {result ? (
           <div className="card result-card fade-in">
             <div className="verdict-row">
-              <div className={verdict-badge ${isFake ? "fake" : "real"}}>
-                {isFake ? "⚠️ Likely Fake" : "✓ Likely Real"}
+              <div className={"verdict-badge " + verdictClass}>
+                {isFake ? "Likely Fake" : "Likely Real"}
               </div>
               <div className="confidence">{result.ml_confidence}% confidence</div>
             </div>
 
             <div className="meter">
-              <div
-                className={meter-fill ${isFake ? "fake" : "real"}}
-                style={{ width: ${result.ml_confidence}% }}
-              ></div>
+              <div className={"meter-fill " + verdictClass} style={{ width: confidenceWidth }}></div>
             </div>
 
-            {result.url_analysis && (
+            {result.url_analysis ? (
               <div className="url-section">
                 <div className="url-header">
                   <span>Source Trust Score</span>
                   <span className="url-score">{result.url_analysis.score}/100</span>
                 </div>
                 <div className="meter">
-                  <div
-                    className="meter-fill url"
-                    style={{ width: ${result.url_analysis.score}% }}
-                  ></div>
+                  <div className="meter-fill url" style={{ width: urlWidth }}></div>
                 </div>
                 {result.url_analysis.flags.length > 0 ? (
                   <ul className="flags">
-                    {result.url_analysis.flags.map((flag, i) => (
-                      <li key={i}>{flag}</li>
-                    ))}
+                    {result.url_analysis.flags.map(function (flag, i) {
+                      return <li key={i}>{flag}</li>;
+                    })}
                   </ul>
                 ) : (
                   <p className="clean">No red flags detected on this source.</p>
                 )}
               </div>
-            )}
+            ) : null}
           </div>
-        )}
+        ) : null}
 
-        <p className="footer">Built with a TF-IDF + Logistic Regression model and URL heuristics</p>
+        <p className="footer">Built with a TF-IDF plus Logistic Regression model and URL heuristics</p>
       </div>
     </div>
   );
