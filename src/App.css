@@ -278,3 +278,64 @@ button:disabled {
   font-size: 12px;
   color: #6b6b6b;
 }
+.cursor {
+  animation: blink 0.8s step-end infinite;
+  font-weight: 400;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+.submission textarea:hover,
+.submission input:hover {
+  border-color: #4a4a4a;
+}
+
+button {
+  transition: transform 0.1s, background 0.15s;
+}
+
+button:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+button.pressing {
+  background: #333;
+}
+
+.press-loading {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.press-dot {
+  width: 5px;
+  height: 5px;
+  background: #f4f1ea;
+  border-radius: 50%;
+  display: inline-block;
+  animation: pressPulse 1s ease-in-out infinite;
+}
+
+.press-dot:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.press-dot:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes pressPulse {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+
+.verdict-headline {
+  transition: color 0.3s;
+}
+
+.dossier-score {
+  transition: color 0.2s;
+}

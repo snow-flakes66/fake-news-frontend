@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
 
 function App() {
@@ -7,6 +7,71 @@ function App() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [displayedConfidence, setDisplayedConfidence] = useState(0);
+  const [displayedUrlScore, setDisplayedUrlScore] = useState(0);
+  const [headlineText, setHeadlineText] = useState("");
+
+  const fullHeadline = "Is it news, or is it noise?";
+
+  useEffect(function () {
+    let i = 0;
+    const interval = setInterval(function () {
+      setHeadlineText(fullHeadline.slice(0, i + 1));
+      i++;
+      if (i >= fullHeadline.length) {
+        clearInterval(interval);
+      }
+    }, 35);
+    return function () {
+      clearInterval(interval);
+    };
+  }, []);
+
+  useEffect(
+    function () {
+      if (!result) {
+        setDisplayedConfidence(0);
+        return;
+      }
+      let current = 0;
+      const target = result.ml_confidence;
+      const interval = setInterval(function () {
+        current += target / 30;
+        if (current >= target) {
+          current = target;
+          clearInterval(interval);
+        }
+        setDisplayedConfidence(current);
+      }, 20);
+      return function () {
+        clearInterval(interval);
+      };
+    },
+    [result]
+  );
+
+  useEffect(
+    function () {
+      if (!result || !result.url_analysis) {
+        setDisplayedUrlScore(0);
+        return;
+      }
+      let current = 0;
+      const target = result.url_analysis.score;
+      const interval = setInterval(function () {
+        current += target / 30;
+        if (current >= target) {
+          current = target;
+          clearInterval(interval);
+        }
+        setDisplayedUrlScore(current);
+      }, 20);
+      return function () {
+        clearInterval(interval);
+      };
+    },
+    [result]
+  );
 
   const handleAnalyze = async () => {
     if (!text.trim()) {
@@ -50,7 +115,7 @@ function App() {
 
       <main className="container">
         <section className="intro">
-          <h2 className="headline">Is it news, or is it noise?</h2>
+          <h2 className="headline">{headlineText}<span className="cursor">|</span></h2>
           <p className="dek">
             Submit an article and its source. Our analysis engine examines language patterns
             and domain credibility to render a verdict.
@@ -74,8 +139,17 @@ function App() {
               value={url}
               onChange={function (e) { setUrl(e.target.value); }}
             />
-            <button onClick={handleAnalyze} disabled={loading}>
-              {loading ? "Reviewing..." : "Submit for Review"}
+            <button onClick={handleAnalyze} disabled={loading} className={loading ? "pressing" : ""}>
+              {loading ? (
+                <span className="press-loading">
+                  <span className="press-dot"></span>
+                  <span className="press-dot"></span>
+                  <span className="press-dot"></span>
+                  Printing verdict
+                </span>
+              ) : (
+                "Submit for Review"
+              )}
             </button>
           </div>
 
@@ -93,7 +167,7 @@ function App() {
                 {isFake ? "Fabricated" : "Credible"}
               </h3>
               <p className="verdict-sub">
-                Our model is {result.ml_confidence}% confident in this assessment.
+                Our model is {displayedConfidence.toFixed(2)}% confident in this assessment.
               </p>
             </div>
 
@@ -101,7 +175,7 @@ function App() {
               <div className="dossier">
                 <div className="dossier-header">
                   <span className="field-label">🗂️ Source Dossier</span>
-                  <span className="dossier-score">{result.url_analysis.score} / 100</span>
+                  <span className="dossier-score">{Math.round(displayedUrlScore)} / 100</span>
                 </div>
                 {result.url_analysis.flags.length > 0 ? (
                   <ul className="flags">
@@ -121,6 +195,9 @@ function App() {
       <footer className="colophon">
         <div className="rule thin"></div>
         <p>📡 Analysis by TF-IDF + Logistic Regression, cross-referenced with domain heuristics.</p>
+        <p className="disclaimer">
+          Note: The model is trained on a static dataset and may be less reliable on very recent events, non-political topics, or non-US news sources. Source credibility checks remain independent of this limitation.
+        </p>
       </footer>
     </div>
   );
