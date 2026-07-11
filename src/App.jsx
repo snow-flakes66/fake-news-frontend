@@ -18,7 +18,7 @@ function App() {
     setResult(null);
 
     try {
-      const res = await fetch("http://127.0.0.1:5000/analyze", {
+      const res = await fetch("https://fake-news-detector-4bqv.onrender.com/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text, url }),
