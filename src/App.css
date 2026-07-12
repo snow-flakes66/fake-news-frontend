@@ -6,7 +6,8 @@ body {
   margin: 0;
   background: #f4f1ea;
   color: #1a1a1a;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: Georgia, "Times New Roman", serif; 
+  color-scheme: light only;
 }
 
 .page {
