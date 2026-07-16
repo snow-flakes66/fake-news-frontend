@@ -194,11 +194,11 @@ body {
 .dek {
   font-size: 17px;
   line-height: 1.6;
-  color: #4a4a4a;
+  color: #1a1a1a;
+  font-weight: 600;
   max-width: 480px;
   margin: 0 auto;
 }
-
 /* ---- How it works ---- */
 .how-it-works {
   margin-bottom: 32px;
@@ -566,21 +566,26 @@ button:disabled {
 .colophon {
   max-width: 640px;
   margin: 0 auto;
-  padding: 0 24px 48px;
+  padding: 24px;
   text-align: center;
+  background: rgba(244, 241, 234, 0.95);
+  border: 1px solid #1a1a1a;
 }
 
 .colophon p {
   font-family: -apple-system, "Segoe UI", sans-serif;
-  font-size: 12px;
-  color: #6b6b6b;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a1a1a;
 }
 
 .disclaimer {
   max-width: 480px;
   margin: 12px auto 0;
   font-style: italic;
+  font-weight: 600;
   line-height: 1.5;
+  color: #4a4a4a;
 }
 
 @media (max-width: 640px) {
