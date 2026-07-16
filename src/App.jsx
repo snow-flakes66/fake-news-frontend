@@ -134,21 +134,6 @@ function App() {
   return (
     <div className="page">
      <div className="newsprint-bg">
-        <div className="mock-page">
-          <div className="mock-masthead">THE DAILY DISPATCH</div>
-          <div className="mock-headline">Markets Rally as Central Banks Signal Coordinated Policy Shift Amid Global Uncertainty</div>
-          <div className="mock-body">
-            <div>
-              <div className="mock-photo"></div>
-              <div className="mock-caption">Traders react to the announcement on the exchange floor this morning.</div>
-            </div>
-            <div className="mock-columns">
-              <p><span className="cap">W</span>ashington officials confirmed today that new measures would take effect within the coming weeks, following months of deliberation among senior policymakers.</p>
-              <p>Analysts remain divided on the long-term implications, with some predicting stabilization and others warning of continued volatility ahead.</p>
-              <p>Sources close to the matter say further details will be released in an upcoming briefing scheduled for later this month.</p>
-            </div>
-          </div>
-        </div>
       </div>
       <header className="masthead">
         <div className="masthead-inner">
