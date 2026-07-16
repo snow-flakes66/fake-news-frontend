@@ -1,6 +1,19 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 
+const EXAMPLES = [
+  {
+    label: "Real headline",
+    text: "The Reserve Bank of India's monetary policy committee voted unanimously to keep the repo rate unchanged, citing stable inflation trends and the need to support continued economic growth.",
+    url: "https://thehindu.com",
+  },
+  {
+    label: "Fake headline",
+    text: "SHOCKING: Scientists confirm that drinking hot water with lemon every morning cures cancer completely, doctors don't want you to know this simple trick that Big Pharma is hiding.",
+    url: "https://healthnewsdaily24.xyz",
+  },
+];
+
 function App() {
   const [text, setText] = useState("");
   const [url, setUrl] = useState("");
@@ -10,6 +23,7 @@ function App() {
   const [displayedConfidence, setDisplayedConfidence] = useState(0);
   const [displayedUrlScore, setDisplayedUrlScore] = useState(0);
   const [headlineText, setHeadlineText] = useState("");
+  const [history, setHistory] = useState([]);
 
   const fullHeadline = "Is it news, or is it noise?";
 
@@ -90,11 +104,28 @@ function App() {
       });
       const data = await res.json();
       setResult(data);
+
+      const entry = {
+        snippet: text.slice(0, 60) + (text.length > 60 ? "..." : ""),
+        verdict: data.ml_prediction,
+        confidence: data.ml_confidence,
+      };
+      setHistory(function (prev) {
+        const updated = [entry, ...prev];
+        return updated.slice(0, 4);
+      });
     } catch (err) {
       setError("Could not reach the backend. It may be waking up, try again in a few seconds.");
     } finally {
       setLoading(false);
     }
+  };
+
+  const loadExample = function (example) {
+    setText(example.text);
+    setUrl(example.url);
+    setResult(null);
+    setError("");
   };
 
   const isFake = result && result.ml_prediction === "Fake";
@@ -122,6 +153,25 @@ function App() {
           </p>
         </section>
 
+        <section className="how-it-works">
+          <div className="rule thin"></div>
+          <span className="field-label">🧭 How It Works</span>
+          <div className="hiw-grid">
+            <div className="hiw-item">
+              <span className="hiw-number">1</span>
+              <p><strong>Text Analysis</strong> — a Logistic Regression model trained on 72,000+ articles scores the language patterns in your submission.</p>
+            </div>
+            <div className="hiw-item">
+              <span className="hiw-number">2</span>
+              <p><strong>Source Check</strong> — the URL is independently checked for HTTPS, domain age, TLD reputation, and structure red flags.</p>
+            </div>
+            <div className="hiw-item">
+              <span className="hiw-number">3</span>
+              <p><strong>Combined Verdict</strong> — both signals are shown separately, so you see not just the answer but the reasoning behind it.</p>
+            </div>
+          </div>
+        </section>
+
         <section className="submission">
           <label className="field-label">✏️ Article Text</label>
           <textarea
@@ -130,6 +180,17 @@ function App() {
             onChange={function (e) { setText(e.target.value); }}
             rows={8}
           />
+
+          <div className="examples-row">
+            <span className="try-label">Try:</span>
+            {EXAMPLES.map(function (ex, i) {
+              return (
+                <button key={i} className="example-btn" onClick={function () { loadExample(ex); }}>
+                  {ex.label}
+                </button>
+              );
+            })}
+          </div>
 
           <label className="field-label">🔗 Source URL (optional)</label>
           <div className="input-row">
@@ -167,9 +228,25 @@ function App() {
                 {isFake ? "Fabricated" : "Credible"}
               </h3>
               <p className="verdict-sub">
-                Our model is {displayedConfidence.toFixed(2)}% confident in this assessment.
+                Our model is {displayedConfidence.toFixed(2)}% confident in this assessment,
+                based on {result.word_count} words analyzed.
               </p>
             </div>
+
+            {result.top_words && result.top_words.length > 0 ? (
+              <div className="word-influence">
+                <span className="field-label">🔬 Most Influential Words</span>
+                <div className="word-chips">
+                  {result.top_words.map(function (w, i) {
+                    return (
+                      <span key={i} className={"chip " + (w.leans_fake ? "chip-fake" : "chip-real")}>
+                        {w.word}
+                      </span>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : null}
 
             {result.url_analysis ? (
               <div className="dossier">
@@ -188,6 +265,26 @@ function App() {
                 )}
               </div>
             ) : null}
+          </section>
+        ) : null}
+
+        {history.length > 0 ? (
+          <section className="history-section">
+            <div className="rule thin"></div>
+            <span className="field-label">🕘 Recent Checks This Session</span>
+            <div className="history-list">
+              {history.map(function (h, i) {
+                return (
+                  <div key={i} className="history-item">
+                    <span className={"history-badge " + (h.verdict === "Fake" ? "fake" : "real")}>
+                      {h.verdict}
+                    </span>
+                    <span className="history-snippet">{h.snippet}</span>
+                    <span className="history-confidence">{h.confidence}%</span>
+                  </div>
+                );
+              })}
+            </div>
           </section>
         ) : null}
       </main>
